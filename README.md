@@ -7,11 +7,12 @@ warns if there is a newer version of CLI released
 [![License](https://img.shields.io/github/license/envoy/plugin-warn-if-update-available)](https://github.com/envoy/plugin-warn-if-update-available/blob/master/package.json)
 
 <!-- toc -->
-* [@envoy/plugin-warn-if-update-available](#envoyplugin-warn-if-update-available)
-* [What is this?](#what-is-this)
-* [How it works](#how-it-works)
-* [Installation](#installation)
-* [Configuration](#configuration)
+
+- [@envoy/plugin-warn-if-update-available](#envoyplugin-warn-if-update-available)
+- [What is this?](#what-is-this)
+- [How it works](#how-it-works)
+- [Installation](#installation)
+- [Configuration](#configuration)
 <!-- tocstop -->
 
 # What is this?
@@ -45,6 +46,7 @@ In `package.json`, set `oclif['warn-if-update-available']` to an object with
 any of the following configuration properties:
 
 - `timeoutInDays` - Duration between update checks. Defaults to 60.
+- `nagTimeoutInDays` - Duration between upgrade nag prompts. Defaults to 0.
 - `message` - Customize update message.
 
 ## Example configuration
@@ -55,6 +57,7 @@ any of the following configuration properties:
     "plugins": ["@envoy/plugin-warn-if-update-available"],
     "warn-if-update-available": {
       "timeoutInDays": 7,
+      "nagTimeoutInDays": 1,
       "message": "<%= config.name %> update available from <%= chalk.greenBright(config.version) %> to <%= chalk.greenBright(latest) %>."
     }
   }

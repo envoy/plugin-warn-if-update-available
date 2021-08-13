@@ -3,7 +3,6 @@ import * as libnpm from "libnpm";
 import * as semver from "semver";
 import * as fs from "fs-extra";
 import * as path from "path";
-import cli from "cli-ux";
 import template from "lodash.template";
 import chalk from "chalk";
 
@@ -12,21 +11,25 @@ const hook: Hook<"postrun"> = async function ({ config }) {
   // Destructure package.json configuration with defaults
   const {
     timeoutInDays = 60,
+    nagTimeoutInDays = 0,
     message = "<%= config.name %> update available from <%= chalk.greenBright(config.version) %> to <%= chalk.greenBright(latest) %>.",
   } = (config.pjson.oclif as any)["warn-if-update-available"] || {};
   const updateCheckPath = path.join(config.cacheDir, "last-update-check");
+  const nagCheckPath = path.join(config.cacheDir, "last-nag-check");
 
-  const refreshNeeded = async () => {
+  const isTimeoutStale = async (stalenessFile, timeout) => {
     try {
-      const { mtime } = await fs.stat(updateCheckPath);
-      const staleAt = new Date(
-        mtime.valueOf() + 1000 * 60 * 60 * 24 * timeoutInDays
-      );
+      const { mtime } = await fs.stat(stalenessFile);
+      const staleAt = new Date(mtime.valueOf() + 1000 * 60 * 60 * 24 * timeout);
       return staleAt < new Date();
     } catch (error) {
       return true;
     }
   };
+
+  const refreshNeeded = () => isTimeoutStale(updateCheckPath, timeoutInDays);
+
+  const nagNeeded = () => isTimeoutStale(nagCheckPath, nagTimeoutInDays);
 
   // handle the situation where the host cli has not yet published a package. if this
   // plugin is installed on it, it will always fail the check since the registry will
@@ -82,12 +85,14 @@ const hook: Hook<"postrun"> = async function ({ config }) {
           latest: latestManifest.version,
         })
       );
+
+      await fs.outputFile(nagCheckPath, "");
     }
   };
 
   if (await refreshNeeded()) {
     await checkForUpdate();
-  } else {
+  } else if (await nagNeeded()) {
     await checkVersion();
   }
 };
