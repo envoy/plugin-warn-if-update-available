@@ -1,3 +1,10 @@
+# [1.11.0](https://github.com/envoy/plugin-warn-if-update-available/compare/v1.10.0...v1.11.0) (2021-08-13)
+
+
+### Features
+
+* support nagTimeoutInDays to control how often to show the upgrade nag ([60cca0c](https://github.com/envoy/plugin-warn-if-update-available/commit/60cca0c074a32100460a3f7a609d55f3a6c59f0e))
+
 # [1.10.0](https://github.com/envoy/plugin-warn-if-update-available/compare/v1.9.2...v1.10.0) (2021-08-13)
 
 
