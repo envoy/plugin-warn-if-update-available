@@ -48,20 +48,14 @@ const hook: Hook<"postrun"> = async function ({ config }) {
   };
 
   const checkForUpdate = async () => {
-    try {
-      cli.action.start("checking for updates");
+    const latestManifest = await readLatestRemoteManifest();
 
-      const latestManifest = await readLatestRemoteManifest();
-
-      await fs.outputJSON(updateCheckPath, latestManifest, {
-        encoding: "utf8",
-      });
-    } finally {
-      cli.action.stop();
-    }
+    await fs.outputJSON(updateCheckPath, latestManifest, {
+      encoding: "utf8",
+    });
 
     // eslint-disable-next-line no-use-before-define, @typescript-eslint/no-use-before-define
-    await checkVersion(true);
+    await checkVersion();
   };
 
   const readLatestLocalManifest = async (): Promise<any | null> => {
@@ -72,7 +66,7 @@ const hook: Hook<"postrun"> = async function ({ config }) {
     }
   };
 
-  const checkVersion = async (printStatus?: boolean) => {
+  const checkVersion = async () => {
     const latestManifest = await readLatestLocalManifest();
 
     // No version check has happened, so we can't tell if we're the latest version:
@@ -81,15 +75,13 @@ const hook: Hook<"postrun"> = async function ({ config }) {
     }
 
     if (semver.lt(currentVersion, latestManifest.version)) {
-      this.warn(
+      this.log(
         template(message)({
           chalk,
           config,
           latest: latestManifest.version,
         })
       );
-    } else if (printStatus) {
-      this.log("All up-to-date!\n");
     }
   };
 
